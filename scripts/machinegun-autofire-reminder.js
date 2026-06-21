@@ -1,0 +1,81 @@
+// ============ MACHINEGUN HOOK ============
+
+if (window._machinegunHookId) Hooks.off('createChatMessage', window._machinegunHookId);
+
+window._machinegunHookId = Hooks.on("createChatMessage", (message) => {
+  try {
+    const content = message.content || "";
+    if (!content.includes("d10-rollcard-data")) return;
+
+    const lower = content.toLowerCase();
+    if (!lower.includes("attack")) return;
+
+    if (!lower.includes("machine gun") && !lower.includes("machinegun") && !lower.includes("mg")) return;
+    if (lower.includes("assault") || lower.includes("smg") || lower.includes("submachine")) return;
+
+    // Robust total extraction
+    let totalRoll = null;
+    const possibleMatches = [
+      content.match(/data-total="(\d+)"/),
+      content.match(/data-total-damage="(\d+)"/),
+      content.match(/data-visible-element="d6-data-details"[^>]*>(\d+)</),
+      content.match(/<span[^>]*>(\d+)<\/span>/),
+      content.match(/Total.*?(\d+)/i),
+      content.match(/(\d+)\s*<\/span>/)
+    ];
+
+    for (const match of possibleMatches) {
+      if (match && match[1]) {
+        totalRoll = parseInt(match[1]);
+        break;
+      }
+    }
+
+    // Distance
+    const shooter = canvas.tokens.controlled[0];
+    const target = Array.from(game.user.targets)[0];
+    let distance = 0;
+    if (shooter && target) {
+      distance = canvas.grid.measurePath([
+        {x: shooter.x, y: shooter.y}, 
+        {x: target.x, y: target.y}
+      ]).distance;
+    }
+
+    let dv = 18;
+    if (distance <= 6) dv = 21;
+    else if (distance <= 12) dv = 18;
+    else if (distance <= 25) dv = 18;
+    else if (distance <= 50) dv = 19;
+    else dv = 25;
+
+    const over = totalRoll ? Math.max(0, totalRoll - dv) : 0;
+    const multiplier = Math.min(Math.max(over, 1), 5);
+
+    let reminderContent = "";
+
+    if (over <= 0) {
+      // Missed the DV
+      reminderContent = `<div style="border:2px solid #c0392b;border-radius:6px;padding:10px 12px;background:#2c0b0b;color:#f5c6c6;margin:8px 0;">
+        <strong style="color:#e74c3c">Machine Gun Autofire</strong><br>
+        Distance: <strong>${distance.toFixed(1)}m</strong> | DV: <strong>${dv}</strong><br>
+        Roll: <strong>${totalRoll || '?'}</strong> vs DV <strong>${dv}</strong><br>
+        <strong style="color:#ff6b6b">MISSED</strong> — You did not beat the DV.
+      </div>`;
+    } else {
+      // Hit and show multiplier
+      reminderContent = `<div style="border:2px solid #c0392b;border-radius:6px;padding:10px 12px;background:#2c0b0b;color:#f5c6c6;margin:8px 0;">
+        <strong style="color:#e74c3c">Machine Gun Autofire</strong><br>
+        Distance: <strong>${distance.toFixed(1)}m</strong> | DV: <strong>${dv}</strong><br>
+        Roll: <strong>${totalRoll || '?'}</strong> → <strong>+${over}</strong> over<br>
+        <strong>Multiplier: ${multiplier}x damage</strong>
+      </div>`;
+    }
+
+    ChatMessage.create({ content: reminderContent });
+  } catch (err) {
+    console.error("[CPR Ammo] Machinegun error:", err);
+  }
+});
+
+ui.notifications.info("✅ Machinegun Hook Updated (Shows Missed)", {type: "success"});
