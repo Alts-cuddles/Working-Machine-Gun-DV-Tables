@@ -1,7 +1,7 @@
 {
   "id": "working-machine-gun-dv-tables",
   "title": "Working Machine Gun DV Tables",
-  "description": "Automatically shows DV, distance, roll result, and multiplier for Machine Gun autofire attacks in Cyberpunk RED. Includes miss detection.",
+  "description": "Automatically shows DV, distance, roll result, and multiplier for Machine Gun autofire attacks in Cyberpunk RED.",
   "version": "1.0.0",
   "compatibility": {
     "minimum": "12",
