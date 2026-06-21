@@ -1,7 +1,7 @@
 {
-  "id": "machinegun-autofire-reminder",
-  "title": "Machine Gun Autofire Reminder",
-  "description": "Automatically shows DV, distance, roll result, and multiplier for Machine Gun autofire attacks. Includes miss detection.",
+  "id": "working-machine-gun-dv-tables",
+  "title": "Working Machine Gun DV Tables",
+  "description": "Automatically shows DV, distance, roll result, and multiplier for Machine Gun autofire attacks in Cyberpunk RED. Includes miss detection and proper multiplier calculation.",
   "version": "1.0.0",
   "compatibility": {
     "minimum": "12",
@@ -9,10 +9,11 @@
   },
   "authors": [
     {
-      "name": "Cuddles"
+      "name": "Alts-cuddles"
     }
   ],
   "scripts": [
     "scripts/machinegun-autofire-reminder.js"
-  ]
+  ],
+  "url": "https://github.com/Alts-cuddles/Working-Machine-Gun-DV-Tables"
 }
